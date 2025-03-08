@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Employee Performance Bell Curve</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f8f9fa; }
+        .container { max-width: 1200px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); }
+        h1, h2 { text-align: center; margin-top: 20px; color: #333; }
+        .table th { background-color: #007bff; color: white; }
+        .deviation-positive { color: green; font-weight: bold; }
+        .deviation-negative { color: red; font-weight: bold; }
+        canvas { margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 class="text-primary">Employee Performance Bell Curve</h1>
+
+        <!-- Category Distribution Table -->
+        <h2 class="mt-4">Category Distribution</h2>
+        <table class="table table-bordered text-center">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Standard %</th>
+                    <th>Actual %</th>
+                    <th>Deviation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="entry : ${actual}">
+                    <td th:text="${entry.key}"></td>
+                    <td th:text="${standard[entry.key]} + '%'"></td>
+                    <td th:text="${#numbers.formatDecimal(actual[entry.key], 1, 2)} + '%'"></td>
+                    <td th:text="${#numbers.formatDecimal(deviation[entry.key], 1, 2)} + '%'"
+                        th:classappend="${deviation[entry.key] > 0} ? 'deviation-positive' : 'deviation-negative'"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Employee Ratings Table -->
+        <h2 class="mt-4">Employee Ratings</h2>
+        <table class="table table-bordered text-center">
+            <thead>
+                <tr>
+                    <th>Employee ID</th>
+                    <th>Name</th>
+                    <th>Rating</th>
+                    <th>Suggestion</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="emp : ${employees}">
+                    <td th:text="${emp.eid}"></td>
+                    <td th:text="${emp.name}"></td>
+                    <td th:text="${emp.rating}"></td>
+                    <td th:switch="${emp.rating}">
+                        <span th:case="'A'" class="badge bg-success">Outstanding</span>
+                        <span th:case="'B'" class="badge bg-primary">Very Good</span>
+                        <span th:case="'C'" class="badge bg-info">Good</span>
+                        <span th:case="'D'" class="badge bg-warning">Needs Improvement</span>
+                        <span th:case="'E'" class="badge bg-danger">Low Performance</span>
+                        <span th:case="*" class="badge bg-secondary">Not Rated</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Performance Bell Curve Chart -->
+        <h2 class="mt-4">Performance Bell Curve</h2>
+        <canvas id="bellCurveChart"></canvas>
+    </div>
+
+     <script th:inline="javascript">
+        var categories = [[${categories}]];
+        var standard = [[${standard}]];
+        var actual = [[${actualPercentages}]];
+
+        var ctx = document.getElementById('bellCurveChart').getContext('2d');
+        new Chart(ctx, {
+            //type: 'bar',
+			type: 'line',
+            data: {
+                labels: categories,
+                datasets: [
+                    { label: 'Standard %', data: standard, backgroundColor: 'rgba(54, 162, 235, 0.7)' },
+                    { label: 'Actual %', data: actual, backgroundColor: 'rgba(255, 99, 132, 0.7)' }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: { enabled: true }
+                },
+                scales: {
+                    y: { beginAtZero: true, max: 50 }
+                }
+            }
+        });
+    </script>
+	
+
+</body>
+</html>
