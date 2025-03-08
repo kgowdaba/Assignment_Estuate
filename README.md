@@ -33,3 +33,10 @@ Java 17 or later
 Maven.
 MySQL (or configure another database).
 Git.
+
+
+HTTP Method - API Endpoints   - Description -
+GET         - //employee/all  - To View Home Page
+POST        - /employees/add  - Add a new employee record
+
+
